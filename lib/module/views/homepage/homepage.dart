@@ -9,6 +9,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int currentIndex = 1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,22 +87,28 @@ class _HomePageState extends State<HomePage> {
                 margin: const EdgeInsets.all(25),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(30),
-                  color: Colors.black,
+                  color: Colors.black.withOpacity(0.75),
                 ),
                 child: BottomNavigationBar(
+                  currentIndex: currentIndex,
+                  onTap: (val) {
+                    setState(() {
+                      currentIndex = val;
+                    });
+                  },
                   elevation: 0,
                   type: BottomNavigationBarType.shifting,
                   selectedItemColor: Colors.white,
                   unselectedItemColor: Colors.lightGreen,
                   items: const [
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.category),
-                      label: 'Add Category',
+                      icon: Icon(Icons.monetization_on),
+                      label: 'Add Budget',
                       backgroundColor: Colors.transparent,
                     ),
                     BottomNavigationBarItem(
-                      icon: Icon(Icons.monetization_on),
-                      label: 'Add Budget',
+                      icon: Icon(Icons.category),
+                      label: 'Add Category',
                       backgroundColor: Colors.transparent,
                     ),
                     BottomNavigationBarItem(
