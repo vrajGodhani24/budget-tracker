@@ -1,4 +1,4 @@
-import 'package:expence_tracker/module/views/homepage/homepage.dart';
+import 'package:expence_tracker/module/views/homepage/screens/homepage.dart';
 import 'package:expence_tracker/module/views/splash/screens/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
