@@ -1,89 +1,145 @@
+import 'package:expence_tracker/module/helper/database_helper.dart';
+import 'package:expence_tracker/module/model/category.dart';
+import 'package:expence_tracker/module/views/homepage/model/fetch_category.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class HomePageController extends GetxController {
-  RxInt currentPage = 1.obs;
+  RxInt currentPage = 0.obs;
 
-  List<Map<String, dynamic>> allCategory = [
-    {
-      'categoryId': 1,
-      'categoryName': 'Travelling',
-      'categoryImage': 'asset/icon/travelling.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 2,
-      'categoryName': 'Salary',
-      'categoryImage': 'asset/icon/salary.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 3,
-      'categoryName': 'Rent',
-      'categoryImage': 'asset/icon/rent.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 4,
-      'categoryName': 'Recharge',
-      'categoryImage': 'asset/icon/recharge.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 5,
-      'categoryName': 'Ott',
-      'categoryImage': 'asset/icon/ott.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 6,
-      'categoryName': 'Shopping',
-      'categoryImage': 'asset/icon/online-shopping.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 7,
-      'categoryName': 'Loan',
-      'categoryImage': 'asset/icon/loan.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 8,
-      'categoryName': 'Hospital',
-      'categoryImage': 'asset/icon/hospital.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 9,
-      'categoryName': 'Electricity',
-      'categoryImage': 'asset/icon/electrical-energy.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 10,
-      'categoryName': 'Education',
-      'categoryImage': 'asset/icon/education.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 11,
-      'categoryName': 'Food',
-      'categoryImage': 'asset/icon/diet.png',
-      'isSelect': false,
-    },
-    {
-      'categoryId': 12,
-      'categoryName': 'Business',
-      'categoryImage': 'asset/icon/business-model.png',
-      'isSelect': false,
-    },
+  List<FetchedCategory> fetchedCategory = [];
+  PageController pageController = PageController();
+  DateTime dateTime = DateTime.now();
+  TimeOfDay timeOfDay = TimeOfDay.now();
+  RxString date = "".obs;
+  RxString time = "".obs;
+
+  List<CategoryData> allCategory = [
+    CategoryData(
+        categoryName: "Travelling",
+        categoryImage: "asset/icon/travelling.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Salary",
+        categoryImage: "asset/icon/salary.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Rent",
+        categoryImage: "asset/icon/rent.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Recharge",
+        categoryImage: "asset/icon/recharge.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Ott",
+        categoryImage: "asset/icon/ott.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Shopping",
+        categoryImage: "asset/icon/online-shopping.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Loan",
+        categoryImage: "asset/icon/loan.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Hospital",
+        categoryImage: "asset/icon/hospital.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Electricity",
+        categoryImage: "asset/icon/electrical-energy.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Education",
+        categoryImage: "asset/icon/education.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Food",
+        categoryImage: "asset/icon/diet.png",
+        isSelect: false),
+    CategoryData(
+        categoryName: "Business",
+        categoryImage: "asset/icon/business-model.png",
+        isSelect: false),
   ];
+
+  RxBool isVisible = false.obs;
+
+  @override
+  void onInit() async {
+    super.onInit();
+    fetchedCategory = await DBHelper.dbHelper.fetchCategoryAllData();
+
+    date.value = "${dateTime.day}/${dateTime.month}/${dateTime.year}";
+    time.value =
+        "${timeOfDay.hour}:${timeOfDay.minute} ${timeOfDay.period.name}";
+
+    fetchTimeRemoveCategory();
+  }
+
+  void fetchTimeRemoveCategory() {
+    List<CategoryData> toRemoveCategory = [];
+
+    for (var element in fetchedCategory) {
+      for (var e in allCategory) {
+        if (e.categoryName == element.catName) {
+          toRemoveCategory.add(e);
+        }
+      }
+    }
+
+    allCategory.removeWhere((element) => toRemoveCategory.contains(element));
+    update();
+  }
+
+  void selectDate(DateTime? selectDate) {
+    date.value = "${selectDate!.day}/${selectDate.month}/${selectDate.year}";
+  }
+
+  void selectTime(TimeOfDay? selectTime) {
+    time.value =
+        "${selectTime!.hour}:${selectTime.minute} ${selectTime.period.name}";
+  }
+
+  void iconVisibility() {
+    int bug = 0;
+    for (var element in allCategory) {
+      if (element.isSelect == false) {
+        bug++;
+      }
+    }
+
+    if (bug == allCategory.length) {
+      isVisible.value = false;
+    } else {
+      isVisible.value = true;
+    }
+  }
+
+  void removeCategory(CategoryData data) {
+    allCategory.remove(data);
+    update();
+  }
 
   void changePage(int val) {
     currentPage.value = val;
+    pageController.animateToPage(
+      val,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+    );
   }
 
-  void selectCategory(Map<String, dynamic> data) {
-    data['isSelect'] = !data['isSelect'];
+  void selectCategory(CategoryData data) {
+    data.isSelect = !data.isSelect;
+    update();
+  }
+
+  void uploadedCategory(CategoryData data) {
+    data.isSelect = false;
     update();
   }
 }

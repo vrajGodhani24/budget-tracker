@@ -38,6 +38,7 @@ dependencies:
   get:
   path:
   sqflite:
+  awesome_snackbar_content:
 
 dev_dependencies:
   flutter_test:
