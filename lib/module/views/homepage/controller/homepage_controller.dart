@@ -1,7 +1,6 @@
 import 'package:expence_tracker/module/helper/database_helper.dart';
 import 'package:expence_tracker/module/model/category.dart';
 import 'package:expence_tracker/module/views/homepage/model/fetch_category.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -12,8 +11,16 @@ class HomePageController extends GetxController {
   PageController pageController = PageController();
   DateTime dateTime = DateTime.now();
   TimeOfDay timeOfDay = TimeOfDay.now();
+
+  TextEditingController moneyController = TextEditingController();
+  TextEditingController noteController = TextEditingController();
   RxString date = "".obs;
   RxString time = "".obs;
+  RxString selCategory = "".obs;
+  RxString selPaymentMethod = "".obs;
+  RxString selType = "".obs;
+
+  RxBool addBudgetIconVisibleOrNot = false.obs;
 
   List<CategoryData> allCategory = [
     CategoryData(
@@ -78,6 +85,33 @@ class HomePageController extends GetxController {
         "${timeOfDay.hour}:${timeOfDay.minute} ${timeOfDay.period.name}";
 
     fetchTimeRemoveCategory();
+  }
+
+  void iconVisibleOrNot() {
+    if (moneyController.text.isNotEmpty &&
+        noteController.text.isNotEmpty &&
+        selCategory.value != "" &&
+        selPaymentMethod.value != "" &&
+        selType.value != "") {
+      addBudgetIconVisibleOrNot.value = true;
+    } else {
+      addBudgetIconVisibleOrNot.value = false;
+    }
+  }
+
+  void changedSelPaymentMethod(String? val) {
+    selPaymentMethod.value = val!;
+    iconVisibleOrNot();
+  }
+
+  void changedSelType(String? val) {
+    selType.value = val!;
+    iconVisibleOrNot();
+  }
+
+  void setSelectedCategory(String val) {
+    selCategory.value = val;
+    iconVisibleOrNot();
   }
 
   void fetchTimeRemoveCategory() {
