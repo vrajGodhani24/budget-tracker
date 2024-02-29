@@ -9,7 +9,8 @@ class DBHelper {
 
   static final DBHelper dbHelper = DBHelper._();
 
-  String tableName = "category";
+  String tableName1 = "category";
+  String tableName2 = "budget";
   Database? db;
 
   Future<Database?> initDB() async {
@@ -20,10 +21,12 @@ class DBHelper {
       databasePath,
       version: 1,
       onCreate: (Database db, int version) async {
-        String sql =
-            "CREATE TABLE IF NOT EXISTS $tableName(catId INTEGER PRIMARY KEY AUTOINCREMENT, catName TEXT, catImg BLOB)";
-
-        await db.execute(sql);
+        String sql1 =
+            "CREATE TABLE IF NOT EXISTS $tableName1(catId INTEGER PRIMARY KEY AUTOINCREMENT, catName TEXT, catImg BLOB)";
+        String sql2 =
+            "CREATE TABLE IF NOT EXISTS $tableName2(budgetId INTEGER PRIMARY KEY AUTOINCREMENT, amount TEXT, note TEXT, date TEXT, time TEXT, method TEXT, type TEXT, category TEXT)";
+        await db.execute(sql1);
+        await db.execute(sql2);
       },
     );
     return db;
@@ -33,7 +36,7 @@ class DBHelper {
       String categoryName, Uint8List categoryImage) async {
     db = await initDB();
 
-    String sql = "INSERT INTO $tableName (catName,catImg) VALUES(?,?)";
+    String sql = "INSERT INTO $tableName1(catName,catImg) VALUES(?,?)";
     List args = [categoryName, categoryImage];
 
     await db!.rawInsert(sql, args);
@@ -42,13 +45,34 @@ class DBHelper {
   Future<List<FetchedCategory>> fetchCategoryAllData() async {
     db = await initDB();
 
-    String sql = "SELECT * FROM $tableName";
+    String sql = "SELECT * FROM $tableName1";
 
     List<Map<String, Object?>> data = await db!.rawQuery(sql);
 
-    List<FetchedCategory> fetchedData =
-        data.map((e) => FetchedCategory(catName: "${e['catName']}")).toList();
+    List<FetchedCategory> fetchedData = data
+        .map((e) =>
+            FetchedCategory(catName: "${e['catName']}", catImage: e['catImg']))
+        .toList();
 
     return fetchedData;
+  }
+
+  Future<void> insertBudget(String amount, String note, String date,
+      String time, String method, String type, String category) async {
+    db = await initDB();
+
+    String sql =
+        "INSERT INTO $tableName2(amount, note, date, time, method, type, category) VALUES(?,?,?,?,?,?,?)";
+    List args = [amount, note, date, time, method, type, category];
+
+    await db!.rawInsert(sql, args);
+  }
+
+  Future<List<Map<String, Object?>>> fetchAllBudget() async {
+    String sql = "SELECT * FROM $tableName2";
+
+    List<Map<String, Object?>> data = await db!.rawQuery(sql);
+
+    return data;
   }
 }

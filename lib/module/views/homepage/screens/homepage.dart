@@ -2,7 +2,6 @@ import 'package:expence_tracker/module/views/homepage/controller/homepage_contro
 import 'package:expence_tracker/module/views/homepage/screens/components/add_budget.dart';
 import 'package:expence_tracker/module/views/homepage/screens/components/budget_history.dart';
 import 'package:expence_tracker/module/views/homepage/screens/components/categories.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -41,8 +40,8 @@ class HomePage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: PageView(
-                  onPageChanged: (val) {
-                    homePageController.changePage(val);
+                  onPageChanged: (val) async {
+                    await homePageController.changePage(val);
                   },
                   controller: homePageController.pageController,
                   children: pages,
@@ -61,8 +60,8 @@ class HomePage extends StatelessWidget {
                   child: Obx(
                     () => BottomNavigationBar(
                       currentIndex: homePageController.currentPage.value,
-                      onTap: (val) {
-                        homePageController.changePage(val);
+                      onTap: (val) async {
+                        await homePageController.changePage(val);
                       },
                       elevation: 0,
                       type: BottomNavigationBarType.shifting,

@@ -30,15 +30,12 @@ class Categories extends StatelessWidget {
               content: AwesomeSnackbarContent(
                 title: 'Success!',
                 message: 'Category added successfully!!',
-
-                /// change contentType to ContentType.success, ContentType.warning or ContentType.help for variants
                 contentType: ContentType.success,
               ),
             );
             ScaffoldMessenger.of(context)
               ..hideCurrentSnackBar()
               ..showSnackBar(snackBar);
-            homePageController.iconVisibility();
           });
         }
       }

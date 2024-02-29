@@ -1,3 +1,4 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:expence_tracker/module/helper/database_helper.dart';
 import 'package:expence_tracker/module/model/category.dart';
 import 'package:expence_tracker/module/views/homepage/model/fetch_category.dart';
@@ -8,6 +9,7 @@ class HomePageController extends GetxController {
   RxInt currentPage = 0.obs;
 
   List<FetchedCategory> fetchedCategory = [];
+  List<Map<String, Object?>> fetchedBudget = [];
   PageController pageController = PageController();
   DateTime dateTime = DateTime.now();
   TimeOfDay timeOfDay = TimeOfDay.now();
@@ -79,12 +81,61 @@ class HomePageController extends GetxController {
   void onInit() async {
     super.onInit();
     fetchedCategory = await DBHelper.dbHelper.fetchCategoryAllData();
+    fetchedBudget = await DBHelper.dbHelper.fetchAllBudget();
 
     date.value = "${dateTime.day}/${dateTime.month}/${dateTime.year}";
     time.value =
         "${timeOfDay.hour}:${timeOfDay.minute} ${timeOfDay.period.name}";
 
     fetchTimeRemoveCategory();
+  }
+
+  Object? budgetImage(String categoryName) {
+    Object? image;
+
+    for (var element in fetchedCategory) {
+      if (element.catName == categoryName) {
+        image = element.catImage;
+      }
+    }
+    return image;
+  }
+
+  Future<void> insertBudgetData(BuildContext ctx) async {
+    await DBHelper.dbHelper
+        .insertBudget(
+            moneyController.text,
+            noteController.text,
+            date.value,
+            time.value,
+            selPaymentMethod.value,
+            selType.value,
+            selCategory.value)
+        .then((value) {
+      SnackBar snackBar = SnackBar(
+        elevation: 0,
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        content: AwesomeSnackbarContent(
+          title: 'Success!',
+          message: 'Budget ${moneyController.text} added successfully!!',
+          contentType: ContentType.success,
+        ),
+      );
+      ScaffoldMessenger.of(ctx)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(snackBar);
+
+      noteController.clear();
+      moneyController.clear();
+      date.value = "${dateTime.day}/${dateTime.month}/${dateTime.year}";
+      time.value =
+          "${timeOfDay.hour}:${timeOfDay.minute} ${timeOfDay.period.name}";
+      selPaymentMethod.value = "";
+      selType.value = "";
+      selCategory.value = "";
+      iconVisibleOrNot();
+    });
   }
 
   void iconVisibleOrNot() {
@@ -158,7 +209,9 @@ class HomePageController extends GetxController {
     update();
   }
 
-  void changePage(int val) {
+  Future<void> changePage(int val) async {
+    fetchedCategory = await DBHelper.dbHelper.fetchCategoryAllData();
+    fetchedBudget = await DBHelper.dbHelper.fetchAllBudget();
     currentPage.value = val;
     pageController.animateToPage(
       val,

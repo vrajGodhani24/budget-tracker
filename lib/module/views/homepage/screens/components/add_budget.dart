@@ -24,7 +24,9 @@ class AddBudget extends StatelessWidget {
                   return Visibility(
                     visible: homePageController.addBudgetIconVisibleOrNot.value,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        homePageController.insertBudgetData(context);
+                      },
                       icon: Icon(
                         Icons.add_task,
                         color: Colors.green.shade800,
