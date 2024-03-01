@@ -101,6 +101,266 @@ class HomePageController extends GetxController {
     return image;
   }
 
+  editBudgetData(Map<String, Object?> data) {}
+
+  Future<void> deleteBudget(id) async {
+    await DBHelper.dbHelper.deleteBudget(id);
+    fetchedBudget = await DBHelper.dbHelper.fetchAllBudget();
+    update();
+  }
+
+  bottomSheetForUpdate(Map<String, Object?> e, BuildContext context) {
+    TextEditingController moneyEditingController = TextEditingController();
+    TextEditingController noteEditingController = TextEditingController();
+    String date = "";
+    String time = "";
+    String selPaymentMethod = "";
+    String selType = "";
+    String selCategory = "";
+
+    moneyEditingController.text = e['amount'] as String;
+    noteEditingController.text = e['note'] as String;
+    date = e['date'] as String;
+    time = e['time'] as String;
+    selPaymentMethod = e['method'] as String;
+    selType = e['type'] as String;
+    selCategory = e['category'] as String;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(12),
+          height: 750,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                Colors.lightGreen.shade300,
+              ],
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 100,
+                  vertical: 30,
+                ),
+                child: TextField(
+                  onChanged: (val) {},
+                  controller: moneyEditingController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.all(30),
+                    border: OutlineInputBorder(),
+                    hintText: "Amount in Rs.",
+                    hintStyle: TextStyle(fontSize: 30),
+                  ),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 30),
+                ),
+              ),
+              const SizedBox(height: 15),
+              TextField(
+                controller: noteEditingController,
+                onChanged: (val) {},
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  hintText: "Add a note",
+                ),
+              ),
+              const SizedBox(height: 15),
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            DateTime? selectDate = await showDatePicker(
+                              context: context,
+                              firstDate: DateTime(2015),
+                              lastDate: DateTime(2025),
+                            );
+                          },
+                          icon: const Icon(Icons.date_range),
+                        ),
+                        Obx(
+                          () {
+                            return Text(
+                              date,
+                              style: const TextStyle(fontSize: 16),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            TimeOfDay? selectTime = await showTimePicker(
+                              context: context,
+                              initialTime: TimeOfDay.now(),
+                            );
+                          },
+                          icon: const Icon(Icons.timer),
+                        ),
+                        Obx(
+                          () {
+                            return Text(
+                              "$time     ",
+                              style: const TextStyle(fontSize: 16),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Payment Method:",
+                    style:
+                        TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              ),
+              Row(
+                children: [
+                  Row(
+                    children: [
+                      Obx(
+                        () {
+                          return Radio(
+                            value: "Online",
+                            groupValue: selPaymentMethod,
+                            onChanged: (val) {},
+                            activeColor: Colors.green.shade800,
+                          );
+                        },
+                      ),
+                      const Text("Online", style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                  const SizedBox(width: 30),
+                  Row(
+                    children: [
+                      Obx(
+                        () {
+                          return Radio(
+                            value: "Cash",
+                            groupValue: selPaymentMethod,
+                            onChanged: (val) {},
+                            activeColor: Colors.green.shade800,
+                          );
+                        },
+                      ),
+                      const Text("Cash", style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Payment Type:",
+                    style:
+                        TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+              ),
+              Row(
+                children: [
+                  Row(
+                    children: [
+                      Obx(
+                        () {
+                          return Radio(
+                            value: "Income",
+                            groupValue: selType,
+                            onChanged: (val) {},
+                            activeColor: Colors.green.shade800,
+                          );
+                        },
+                      ),
+                      const Text("Income", style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                  const SizedBox(width: 30),
+                  Row(
+                    children: [
+                      Obx(
+                        () {
+                          return Radio(
+                            value: "Expense",
+                            groupValue: selType,
+                            onChanged: (val) {},
+                            activeColor: Colors.green.shade800,
+                          );
+                        },
+                      ),
+                      const Text("Expence", style: TextStyle(fontSize: 16)),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Select Category:",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(
+                      width: 160,
+                      child: DropdownButtonFormField(
+                        value: null,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: "Select Category",
+                          contentPadding: EdgeInsets.only(
+                            left: 5,
+                            right: 3,
+                          ),
+                        ),
+                        dropdownColor: Colors.lightGreen.shade200,
+                        items: fetchedCategory
+                            .map(
+                              (e) => DropdownMenuItem(
+                                value: e.catName,
+                                child: Text(e.catName),
+                              ),
+                            )
+                            .toList(),
+                        onChanged: (val) {},
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> insertBudgetData(BuildContext ctx) async {
     await DBHelper.dbHelper
         .insertBudget(

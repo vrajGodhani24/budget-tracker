@@ -39,6 +39,7 @@ dependencies:
   path:
   sqflite:
   awesome_snackbar_content:
+  flutter_slidable:
 
 dev_dependencies:
   flutter_test:
