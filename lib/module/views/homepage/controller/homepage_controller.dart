@@ -112,25 +112,46 @@ class HomePageController extends GetxController {
   bottomSheetForUpdate(Map<String, Object?> e, BuildContext context) {
     TextEditingController moneyEditingController = TextEditingController();
     TextEditingController noteEditingController = TextEditingController();
-    String date = "";
-    String time = "";
-    String selPaymentMethod = "";
-    String selType = "";
-    String selCategory = "";
+    String editDate = "";
+    String editTime = "";
+    String editSelPaymentMethod = "";
+    String editSelType = "";
+    String? editSelCategory = "";
 
     moneyEditingController.text = e['amount'] as String;
     noteEditingController.text = e['note'] as String;
-    date = e['date'] as String;
-    time = e['time'] as String;
-    selPaymentMethod = e['method'] as String;
-    selType = e['type'] as String;
-    selCategory = e['category'] as String;
+    editDate = e['date'] as String;
+    editTime = e['time'] as String;
+    editSelPaymentMethod = e['method'] as String;
+    editSelType = e['type'] as String;
+    editSelCategory = e['category'] as String;
+
+    void editDateChanges(DateTime? date) {
+      editDate = "${date!.day}/${date.month}/${date.year}";
+      update();
+    }
+
+    void editTimeChanges(TimeOfDay? time) {
+      editTime = "${time!.hour}:${time.minute} ${time.period.name}";
+      update();
+    }
+
+    void editMethodChanges(String val) {
+      editSelPaymentMethod = val;
+      update();
+    }
+
+    void editTypeChanges(String val) {
+      editSelType = val;
+      update();
+    }
 
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (context) {
         return Container(
+          alignment: Alignment.center,
           padding: const EdgeInsets.all(12),
           height: 750,
           decoration: BoxDecoration(
@@ -144,218 +165,278 @@ class HomePageController extends GetxController {
               ],
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 100,
-                  vertical: 30,
+          child: GetBuilder<HomePageController>(builder: (controller) {
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 100,
+                    vertical: 30,
+                  ),
+                  child: TextField(
+                    onChanged: (val) {},
+                    controller: moneyEditingController,
+                    keyboardType: TextInputType.number,
+                    decoration: const InputDecoration(
+                      contentPadding: EdgeInsets.all(30),
+                      border: OutlineInputBorder(),
+                      hintText: "Amount in Rs.",
+                      hintStyle: TextStyle(fontSize: 30),
+                    ),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 30),
+                  ),
                 ),
-                child: TextField(
+                const SizedBox(height: 15),
+                TextField(
+                  controller: noteEditingController,
                   onChanged: (val) {},
-                  controller: moneyEditingController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.all(30),
-                    border: OutlineInputBorder(),
-                    hintText: "Amount in Rs.",
-                    hintStyle: TextStyle(fontSize: 30),
-                  ),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 30),
-                ),
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: noteEditingController,
-                onChanged: (val) {},
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  hintText: "Add a note",
-                ),
-              ),
-              const SizedBox(height: 15),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            DateTime? selectDate = await showDatePicker(
-                              context: context,
-                              firstDate: DateTime(2015),
-                              lastDate: DateTime(2025),
-                            );
-                          },
-                          icon: const Icon(Icons.date_range),
-                        ),
-                        Obx(
-                          () {
-                            return Text(
-                              date,
-                              style: const TextStyle(fontSize: 16),
-                            );
-                          },
-                        ),
-                      ],
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(50),
                     ),
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            TimeOfDay? selectTime = await showTimePicker(
-                              context: context,
-                              initialTime: TimeOfDay.now(),
-                            );
-                          },
-                          icon: const Icon(Icons.timer),
-                        ),
-                        Obx(
-                          () {
-                            return Text(
-                              "$time     ",
-                              style: const TextStyle(fontSize: 16),
-                            );
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
+                    hintText: "Add a note",
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text("Payment Method:",
-                    style:
-                        TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-              ),
-              Row(
-                children: [
-                  Row(
+                const SizedBox(height: 15),
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Obx(
-                        () {
-                          return Radio(
-                            value: "Online",
-                            groupValue: selPaymentMethod,
-                            onChanged: (val) {},
-                            activeColor: Colors.green.shade800,
-                          );
-                        },
-                      ),
-                      const Text("Online", style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
-                  const SizedBox(width: 30),
-                  Row(
-                    children: [
-                      Obx(
-                        () {
-                          return Radio(
-                            value: "Cash",
-                            groupValue: selPaymentMethod,
-                            onChanged: (val) {},
-                            activeColor: Colors.green.shade800,
-                          );
-                        },
-                      ),
-                      const Text("Cash", style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text("Payment Type:",
-                    style:
-                        TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
-              ),
-              Row(
-                children: [
-                  Row(
-                    children: [
-                      Obx(
-                        () {
-                          return Radio(
-                            value: "Income",
-                            groupValue: selType,
-                            onChanged: (val) {},
-                            activeColor: Colors.green.shade800,
-                          );
-                        },
-                      ),
-                      const Text("Income", style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
-                  const SizedBox(width: 30),
-                  Row(
-                    children: [
-                      Obx(
-                        () {
-                          return Radio(
-                            value: "Expense",
-                            groupValue: selType,
-                            onChanged: (val) {},
-                            activeColor: Colors.green.shade800,
-                          );
-                        },
-                      ),
-                      const Text("Expence", style: TextStyle(fontSize: 16)),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Select Category:",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(
-                      width: 160,
-                      child: DropdownButtonFormField(
-                        value: null,
-                        decoration: const InputDecoration(
-                          border: InputBorder.none,
-                          hintText: "Select Category",
-                          contentPadding: EdgeInsets.only(
-                            left: 5,
-                            right: 3,
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () async {
+                              DateTime? selectDate = await showDatePicker(
+                                context: context,
+                                firstDate: DateTime(2015),
+                                lastDate: DateTime(2025),
+                              );
+                              editDateChanges(selectDate);
+                            },
+                            icon: const Icon(Icons.date_range),
                           ),
+                          Text(
+                            editDate,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () async {
+                              TimeOfDay? selectTime = await showTimePicker(
+                                context: context,
+                                initialTime: TimeOfDay.now(),
+                              );
+                              editTimeChanges(selectTime);
+                            },
+                            icon: const Icon(Icons.timer),
+                          ),
+                          Text(
+                            "$editTime     ",
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("Payment Method:",
+                      style:
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                ),
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        Radio(
+                          value: "Online",
+                          groupValue: editSelPaymentMethod,
+                          onChanged: (val) {
+                            editMethodChanges(val!);
+                          },
+                          activeColor: Colors.green.shade800,
                         ),
-                        dropdownColor: Colors.lightGreen.shade200,
-                        items: fetchedCategory
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e.catName,
-                                child: Text(e.catName),
-                              ),
-                            )
-                            .toList(),
-                        onChanged: (val) {},
+                        const Text("Online", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    const SizedBox(width: 30),
+                    Row(
+                      children: [
+                        Radio(
+                          value: "Cash",
+                          groupValue: editSelPaymentMethod,
+                          onChanged: (val) {
+                            editMethodChanges(val!);
+                          },
+                          activeColor: Colors.green.shade800,
+                        ),
+                        const Text("Cash", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text("Payment Type:",
+                      style:
+                          TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                ),
+                Row(
+                  children: [
+                    Row(
+                      children: [
+                        Radio(
+                          value: "Income",
+                          groupValue: editSelType,
+                          onChanged: (val) {
+                            editTypeChanges(val!);
+                          },
+                          activeColor: Colors.green.shade800,
+                        ),
+                        const Text("Income", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    const SizedBox(width: 30),
+                    Row(
+                      children: [
+                        Radio(
+                          value: "Expense",
+                          groupValue: editSelType,
+                          onChanged: (val) {
+                            editTypeChanges(val!);
+                          },
+                          activeColor: Colors.green.shade800,
+                        ),
+                        const Text("Expence", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Select Category:",
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 160,
+                        child: DropdownButtonFormField(
+                          value: editSelCategory,
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Select Category",
+                            contentPadding: EdgeInsets.only(
+                              left: 5,
+                              right: 3,
+                            ),
+                          ),
+                          dropdownColor: Colors.lightGreen.shade200,
+                          items: fetchedCategory
+                              .map(
+                                (e) => DropdownMenuItem(
+                                  value: e.catName,
+                                  child: Text(e.catName),
+                                ),
+                              )
+                              .toList(),
+                          onChanged: (val) {
+                            editSelCategory = val!;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        moneyEditingController.clear();
+                        noteEditingController.clear();
+                        editDate = "";
+                        editTime = "";
+                        editSelPaymentMethod = "";
+                        editSelType = "";
+                        editSelCategory = "";
+                        Get.back();
+                      },
+                      child: Text(
+                        "Cancel",
+                        style: TextStyle(color: Colors.green.shade800),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await DBHelper.dbHelper
+                            .updateBudgetRecord(
+                                moneyEditingController.text,
+                                noteEditingController.text,
+                                editDate,
+                                editTime,
+                                editSelPaymentMethod,
+                                editSelType,
+                                editSelCategory!,
+                                e['budgetId'] as int)
+                            .then((value) async {
+                          moneyEditingController.clear();
+                          noteEditingController.clear();
+                          editDate = "";
+                          editTime = "";
+                          editSelPaymentMethod = "";
+                          editSelType = "";
+                          editSelCategory = null;
+
+                          Get.back();
+                          fetchedBudget =
+                              await DBHelper.dbHelper.fetchAllBudget();
+                          update();
+
+                          SnackBar snackBar = SnackBar(
+                            elevation: 0,
+                            behavior: SnackBarBehavior.floating,
+                            backgroundColor: Colors.transparent,
+                            content: AwesomeSnackbarContent(
+                              title: 'Success!',
+                              message: 'Budget update successfully!!',
+                              contentType: ContentType.success,
+                            ),
+                          );
+                          ScaffoldMessenger.of(context)
+                            ..hideCurrentSnackBar()
+                            ..showSnackBar(snackBar);
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green.shade800),
+                      child: const Text(
+                        "Save",
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
+              ],
+            );
+          }),
         );
       },
     );

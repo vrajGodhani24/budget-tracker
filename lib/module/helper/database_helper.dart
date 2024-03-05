@@ -77,6 +77,17 @@ class DBHelper {
     await db!.rawDelete(sql, args);
   }
 
+  Future<void> updateBudgetRecord(String amount, String note, String date,
+      String time, String method, String type, String category, int id) async {
+    db = await initDB();
+
+    String sql =
+        "UPDATE $tableName2 SET amount=?,note=?,date=?,time=?,method=?,type=?,category=? WHERE budgetId=?";
+    List args = [amount, note, date, time, method, type, category, id];
+
+    await db!.rawUpdate(sql, args);
+  }
+
   Future<List<Map<String, Object?>>> fetchAllBudget() async {
     String sql = "SELECT * FROM $tableName2";
 
